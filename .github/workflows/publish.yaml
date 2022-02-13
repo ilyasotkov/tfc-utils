@@ -1,0 +1,43 @@
+name: Publish
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.8"
+
+      - name: Install poetry
+        env:
+          POETRY_VERSION: "1.1.13"
+        run: |
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - --version $POETRY_VERSION
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+
+      - name: Install packages
+        run: |
+          poetry install
+
+      - name: Lint
+        run: |
+          ./scripts/lint.sh
+
+      - name: Run tests
+        run: |
+          poetry run pytest ./tests
+
+      - name: Publish
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          poetry config pypi-token.pypi $PYPI_TOKEN
+          poetry publish --build -n

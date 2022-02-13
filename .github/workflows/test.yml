@@ -1,0 +1,47 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+    - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.8"
+
+      - name: Install poetry
+        env:
+          POETRY_VERSION: "1.1.13"
+        run: |
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python - --version $POETRY_VERSION
+          echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+
+      - name: Install packages
+        run: |
+          poetry install
+
+      - name: Lint
+        run: |
+          ./scripts/lint.sh
+
+      - name: Run tests
+        run: |
+          poetry run pytest --cov=./ --cov-report=xml ./
+
+      - name: Upload coverage report
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t $CODECOV_TOKEN
