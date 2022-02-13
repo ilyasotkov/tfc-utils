@@ -1,8 +1,15 @@
 # tfc-utils
 
-> ⚠️ This project is not affiliated with HashiCorp in any way, shape or form.
-
 A CLI helper tool for Terraform Cloud.
+
+<a href="https://pypi.org/project/tfc-utils" target="_blank">
+    <img src="https://img.shields.io/pypi/v/tfc-utils?color=%2334D058&label=pypi%20package" alt="Package version">
+</a>
+<a href="https://codecov.io/gh/ilyasotkov/tfc-utils">
+  <img src="https://codecov.io/gh/ilyasotkov/tfc-utils/branch/main/graph/badge.svg?token=1O5F4A71A8"/>
+</a>
+
+> ⚠️ This project is not affiliated with HashiCorp in any way, shape or form.
 
 ## Usage
 
