@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tfc_utils"
-version = "0.0.1"
+version = "0.0.2"
 description = "A helper tool (CLI) for Terraform Cloud"
 authors = ["Ilya Sotkov <ilya@sotkov.com>"]
 

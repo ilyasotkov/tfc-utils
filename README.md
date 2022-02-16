@@ -48,3 +48,24 @@ Options:
                     TFC_TOKEN; required]
   --help            Show this message and exit.
 ```
+
+### `get-workspace-outputs`
+
+```
+Usage: python -m tfc_utils get-workspace-outputs [OPTIONS]
+
+  Get outputs of a Terraform Cloud workspace as JSON string.
+
+Options:
+  --tfc-token TEXT            Terraform Cloud access token  [env var:
+                              TFE_TOKEN, TFC_TOKEN; required]
+  --tfc-organization TEXT     Terraform Cloud organization name  [env var:
+                              TFC_ORGANIZATION, TFE_ORGANIZATION; required]
+  --tfc-workspace TEXT        Terraform Cloud workspace name  [env var:
+                              TFC_WORKSPACE, TFE_WORKSPACE; required]
+  --prefix TEXT               Optional prefix for filtering out outputs (case-
+                              sensitive)
+  --to-upper / --no-to-upper  Convert output names to uppercase  [default: no-
+                              to-upper]
+  --help                      Show this message and exit.
+  ```
