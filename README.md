@@ -35,7 +35,7 @@ done
 
 ## Usage
 
-### `get-ouputs`
+### `get-outputs`
 
 ```
 Usage: python -m tfc_utils get-outputs [OPTIONS]
