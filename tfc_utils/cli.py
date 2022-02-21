@@ -6,52 +6,44 @@ from terrasnek.api import TFC
 from .terraform_cloud import get_workspace_output, get_workspace_outputs
 
 app = typer.Typer()
+
 tfc_token_opt = typer.Option(
     default=...,
     envvar=["TFE_TOKEN", "TFC_TOKEN"],
     help="Terraform Cloud access token",
-    is_eager=True,
+)
+tfc_organization_opt = typer.Option(
+    default=...,
+    envvar=["TFC_ORGANIZATION", "TFE_ORGANIZATION"],
+    help="Terraform Cloud organization name",
+)
+tfc_workspace_opt = typer.Option(
+    default=...,
+    envvar=["TFC_WORKSPACE", "TFE_WORKSPACE"],
+    help="Terraform Cloud workspace name",
 )
 
 
 @app.command(name="get-output")
 def get_output_cli(
-    workspace_ref: str = typer.Argument(
-        default=...,
-        help="Reference to a Terraform Cloud workspace in "
-        "'<org_name>/<workspace_name>/<output_name>' format.",
+    output_name: str = typer.Argument(
+        default=..., help="Name of your Terraform output, e.g. 'instance_ip_addr'"
     ),
     tfc_token: str = tfc_token_opt,
+    tfc_organization: str = tfc_organization_opt,
+    tfc_workspace: str = tfc_workspace_opt,
 ):
-    """Get the value of a Terraform Cloud workspace output.
-
-    For example: `python -m tfc_utils get-output hashicorp/primary-workspace/instance_ip_addr`
-    """
+    """Get the value of a Terraform Cloud workspace output."""
     tfc = TFC(api_token=tfc_token)
-    try:
-        org, workspace, output = workspace_ref.split("/")
-    except ValueError as e:
-        raise ValueError(
-            "Invalid Terraform output reference, must be in "
-            "'<org_name>/<workspace_name>/<output_name>' format"
-        ) from e
-    output = get_workspace_output(tfc, org, workspace, output)
+    output = get_workspace_output(tfc, tfc_organization, tfc_workspace, output_name)
     typer.echo(output)
 
 
-@app.command(name="get-workspace-outputs")
-def get_workspace_outputs_cli(
+@app.command(name="get-outputs")
+def get_outputs_cli(
     tfc_token: str = tfc_token_opt,
-    tfc_organization: str = typer.Option(
-        default=...,
-        envvar=["TFC_ORGANIZATION", "TFE_ORGANIZATION"],
-        help="Terraform Cloud organization name",
-    ),
-    tfc_workspace: str = typer.Option(
-        default=...,
-        envvar=["TFC_WORKSPACE", "TFE_WORKSPACE"],
-        help="Terraform Cloud workspace name",
-    ),
+    tfc_organization: str = tfc_organization_opt,
+    tfc_workspace: str = tfc_workspace_opt,
     prefix: str = typer.Option(
         default="",
         help="Optional prefix for filtering out outputs (case-sensitive)",
@@ -61,7 +53,7 @@ def get_workspace_outputs_cli(
         help="Convert output names to uppercase",
     ),
 ):
-    """Get outputs of a Terraform Cloud workspace as JSON string."""
+    """Get outputs of a Terraform Cloud workspace as JSON-formatted key-values."""
     tfc = TFC(api_token=tfc_token)
     outputs_dict = get_workspace_outputs(
         tfc=tfc,

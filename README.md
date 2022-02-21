@@ -11,50 +11,36 @@ A CLI helper tool for Terraform Cloud.
 
 > ⚠️ This project is not affiliated with HashiCorp in any way, shape or form.
 
+## Motivation
+
+I wanted a simple way to get all outputs of a Terraform Cloud workspace from a *different repository*, such as a repo with a [cdk8s](https://cdk8s.io) app.
+
+Wrapping `tfc_utils` in the below shell script, I can export all Terraform outputs as shell variables for local use or for use in GitHub Actions:
+
+```sh
+export_tf_output() {
+    export $1
+    if [ ! -z "$GITHUB_ACTIONS" ]; then
+        output_value="$(echo -n $1 | awk -F "=" '{print $2}')"
+        echo "::add-mask::$output_value"
+        echo "$1" >> $GITHUB_ENV
+    fi
+}
+
+outputs=$(python -m tfc_utils get-outputs --to-upper)
+for s in $(echo $outputs | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
+    export_tf_output $s
+done
+```
+
 ## Usage
 
-```
-Usage: python -m tfc_utils [OPTIONS] COMMAND [ARGS]...
-
-  A CLI helper tool for Terraform Cloud.
-
-Options:
-  --install-completion  Install completion for the current shell.
-  --show-completion     Show completion for the current shell, to copy it or
-                        customize the installation.
-  --help                Show this message and exit.
-
-Commands:
-  get-output  Get the value of a Terraform Cloud workspace output.
-```
-
-### `get-output`
+### `get-ouputs`
 
 ```
-Usage: python -m tfc_utils get-output [OPTIONS] WORKSPACE_REF
+Usage: python -m tfc_utils get-outputs [OPTIONS]
 
-  Get the value of a Terraform Cloud workspace output.
-
-  For example: `python -m tfc_utils get-output my-corp/my-
-  workspace/instance_ip_addr`
-
-Arguments:
-  WORKSPACE_REF  Reference to a Terraform Cloud workspace in
-                 '<org_name>/<workspace_name>/<output_name>' format.
-                 [required]
-
-Options:
-  --tfc-token TEXT  Terraform Cloud access token  [env var: TFE_TOKEN,
-                    TFC_TOKEN; required]
-  --help            Show this message and exit.
-```
-
-### `get-workspace-outputs`
-
-```
-Usage: python -m tfc_utils get-workspace-outputs [OPTIONS]
-
-  Get outputs of a Terraform Cloud workspace as JSON string.
+  Get outputs of a Terraform Cloud workspace as JSON-formatted key-values.
 
 Options:
   --tfc-token TEXT            Terraform Cloud access token  [env var:
@@ -68,4 +54,25 @@ Options:
   --to-upper / --no-to-upper  Convert output names to uppercase  [default: no-
                               to-upper]
   --help                      Show this message and exit.
-  ```
+```
+
+### `get-output`
+
+```
+Usage: python -m tfc_utils get-output [OPTIONS] OUTPUT_NAME
+
+  Get the value of a Terraform Cloud workspace output.
+
+Arguments:
+  OUTPUT_NAME  Name of your Terraform output, e.g. 'instance_ip_addr'
+               [required]
+
+Options:
+  --tfc-token TEXT         Terraform Cloud access token  [env var: TFE_TOKEN,
+                           TFC_TOKEN; required]
+  --tfc-organization TEXT  Terraform Cloud organization name  [env var:
+                           TFC_ORGANIZATION, TFE_ORGANIZATION; required]
+  --tfc-workspace TEXT     Terraform Cloud workspace name  [env var:
+                           TFC_WORKSPACE, TFE_WORKSPACE; required]
+  --help                   Show this message and exit.
+```

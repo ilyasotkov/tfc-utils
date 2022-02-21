@@ -3,15 +3,20 @@ from typing import Dict
 from terrasnek.api import TFC
 
 
-def get_workspace_output(tfc: TFC, org_name: str, workspace_name: str, output_name: str) -> str:
-    tfc.set_org(org_name=org_name)
+def get_workspace_output(
+    tfc: TFC,
+    organization_name: str,
+    workspace_name: str,
+    output_name: str,
+) -> str:
+    tfc.set_org(org_name=organization_name)
     response = list_current_state_version_outputs(tfc, workspace_name)
     for output in response["data"]:
         attrs = output["attributes"]
         if attrs["name"] == output_name:
             return attrs["value"]
     raise LookupError(
-        f"Failed to find output in workspace: {org_name}/{workspace_name}/{output_name}"
+        f"Failed to find output in workspace: {organization_name}/{workspace_name}/{output_name}"
     )
 
 
