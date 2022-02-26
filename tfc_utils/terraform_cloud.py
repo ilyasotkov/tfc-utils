@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 
 from terrasnek.api import TFC
@@ -14,7 +15,11 @@ def get_workspace_output(
     for output in response["data"]:
         attrs = output["attributes"]
         if attrs["name"] == output_name:
-            return attrs["value"]
+            value = attrs["value"]
+            if isinstance(value, str):
+                return value
+            return json.dumps(value)
+
     raise LookupError(
         f"Failed to find output in workspace: {organization_name}/{workspace_name}/{output_name}"
     )
@@ -36,7 +41,10 @@ def get_workspace_outputs(
         if output_name.startswith(prefix):
             if not preserve_case:
                 output_name = output_name.upper()
-            outputs_dict[output_name] = attrs["value"]
+            value = attrs["value"]
+            if not isinstance(value, str):
+                value = json.dumps(value)
+            outputs_dict[output_name] = value
     return outputs_dict
 
 
